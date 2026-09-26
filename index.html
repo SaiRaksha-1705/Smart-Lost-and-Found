@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Lost & Found | Space Edition</title>
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <!-- External CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ========================================================== -->
+  <!-- NAVIGATION BAR                                             -->
+  <!-- ========================================================== -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">🛸</div>
+      <div class="brand-text">
+        <span class="brand-title">AURA<span class="neon-text">FIND</span></span>
+        <span class="brand-tagline">Smart Campus Lost &amp; Found</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button
+        class="tab-btn active"
+        id="tabBtnReport"
+        onclick="switchTab('reportTab', this)"
+      >
+        <span class="tab-icon">📝</span>
+        <span>Report Item</span>
+      </button>
+      <button
+        class="tab-btn"
+        id="tabBtnFeed"
+        onclick="switchTab('feedTab', this)"
+      >
+        <span class="tab-icon">⚡</span>
+        <span>Live Match Feed</span>
+        <span class="badge-count" id="feedCountBadge">3</span>
+      </button>
+      <button
+        class="tab-btn"
+        id="tabBtnAdmin"
+        onclick="switchTab('adminTab', this)"
+      >
+        <span class="tab-icon">📊</span>
+        <span>Admin Dashboard</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ========================================================== -->
+  <!-- MAIN CONTENT CONTAINER                                     -->
+  <!-- ========================================================== -->
+  <main class="main-container">
+    
+    <!-- Toast Notification Container for interactive alerts -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <!-- ======================================================== -->
+    <!-- TAB 1: REPORT ITEM FORM                                  -->
+    <!-- ======================================================== -->
+    <section id="reportTab" class="tab-content active">
+      <div class="panel-header">
+        <div class="panel-tag">TRANSMISSION PORTAL</div>
+        <h1 class="panel-title">Report a Lost or Found Item</h1>
+        <p class="panel-subtitle">
+          Submit item telemetry to initialize automated pattern matching across the campus network.
+        </p>
+      </div>
+
+      <!-- Main Form Card -->
+      <div class="card form-card">
+        <form id="reportForm" onsubmit="handleFormSubmit(event)" novalidate>
+          
+          <!-- Radio Buttons: Lost or Found -->
+          <div class="form-group">
+            <label class="section-label">Incident Type <span class="required-star">*</span></label>
+            <div class="radio-toggle-group">
+              <label class="radio-option">
+                <input
+                  type="radio"
+                  name="itemType"
+                  value="Lost"
+                  id="typeLost"
+                  checked
+                />
+                <span class="radio-custom lost-radio">
+                  <span class="radio-icon">🔴</span>
+                  <span class="radio-text">
+                    <strong>I Lost Something</strong>
+                    <small>Search our database for matches</small>
+                  </span>
+                </span>
+              </label>
+
+              <label class="radio-option">
+                <input
+                  type="radio"
+                  name="itemType"
+                  value="Found"
+                  id="typeFound"
+                />
+                <span class="radio-custom found-radio">
+                  <span class="radio-icon">🟢</span>
+                  <span class="radio-text">
+                    <strong>I Found Something</strong>
+                    <small>Safeguard and register the item</small>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Grid row: Category & Date -->
+          <div class="form-grid-2">
+            <!-- Category Dropdown -->
+            <div class="form-group">
+              <label for="itemCategory" class="input-label">
+                Category <span class="required-star">*</span>
+              </label>
+              <select id="itemCategory" class="form-input" required onchange="clearInputError(this, 'errorItemCategory')">
+                <option value="" disabled selected>Select category...</option>
+                <option value="Electronics">📱 Electronics &amp; Gadgets</option>
+                <option value="Wallets & Cards">💳 Wallets, Purses &amp; IDs</option>
+                <option value="Keys">🔑 Keys &amp; Keychains</option>
+                <option value="Bags & Backpacks">🎒 Bags &amp; Backpacks</option>
+                <option value="Wearables & Watches">⌚ Watches &amp; Wearables</option>
+                <option value="Clothing & Accessories">🧥 Clothing &amp; Jackets</option>
+                <option value="Books & Stationery">📚 Books &amp; Stationery</option>
+                <option value="Personal Accessories">👓 Glasses &amp; Accessories</option>
+                <option value="Other">📦 Other Miscellaneous</option>
+              </select>
+              <div class="field-error" id="errorItemCategory">Please select an item category.</div>
+            </div>
+
+            <!-- Date Picker -->
+            <div class="form-group">
+              <label for="itemDate" class="input-label">
+                Incident Date <span class="required-star">*</span>
+              </label>
+              <input
+                type="date"
+                id="itemDate"
+                class="form-input"
+                required
+                oninput="clearInputError(this, 'errorItemDate')"
+              />
+              <div class="field-error" id="errorItemDate">Please provide the incident date.</div>
+            </div>
+          </div>
+
+          <!-- Item Name with descriptive placeholder -->
+          <div class="form-group">
+            <label for="itemName" class="input-label">
+              Item Name &amp; Primary Title <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              id="itemName"
+              class="form-input"
+              placeholder="e.g., Blue Casio Watch with scratched strap"
+              required
+              oninput="clearInputError(this, 'errorItemName')"
+            />
+            <div class="field-error" id="errorItemName">Please enter a descriptive item name (minimum 3 characters).</div>
+          </div>
+
+          <!-- Smart Location Dropdown (Updated dynamically by script.js) -->
+          <div class="form-group">
+            <label for="itemLocation" class="input-label">
+              Location <span class="required-star">*</span>
+              <span id="locationHint" class="label-hint">(Select where you last saw or picked it up)</span>
+            </label>
+            <select id="itemLocation" class="form-input" required onchange="clearInputError(this, 'errorItemLocation')">
+              <!-- Options populated dynamically by script.js -->
+            </select>
+            <div class="field-error" id="errorItemLocation">Please choose a location where the item was lost or found.</div>
+          </div>
+
+          <!-- Drop-off Status (Found items only) -->
+          <div id="dropOffContainer" class="form-group found-only-field" style="display: none;">
+            <label for="dropOffStatus" class="input-label">
+              Current Drop-off / Custody Status <span class="required-star">*</span>
+            </label>
+            <select id="dropOffStatus" class="form-input" onchange="clearInputError(this, 'errorDropOffStatus')">
+              <option value="RK Hall Security" selected>🏢 RK Hall Security Desk</option>
+              <option value="Central Library Reception">📚 Central Library Reception</option>
+              <option value="Student Union Information Desk">🏛️ Student Union Information Desk</option>
+              <option value="Sports Complex Main Counter">⚽ Sports Complex Main Counter</option>
+              <option value="Campus Safety Center">🛡️ Campus Safety Center</option>
+              <option value="With me">🤝 With me (Temporary Safekeeping)</option>
+            </select>
+            <div class="field-error" id="errorDropOffStatus">Please select the current custody point.</div>
+          </div>
+
+          <!-- Vague Description Fields: Brand, Size, Identifying Marks -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="itemBrand" class="input-label">Brand / Manufacturer</label>
+              <input
+                type="text"
+                id="itemBrand"
+                class="form-input"
+                placeholder="e.g., Casio, Apple, Nike, Parker"
+              />
+            </div>
+            <div class="form-group">
+              <label for="itemSize" class="input-label">Size / Form Factor</label>
+              <input
+                type="text"
+                id="itemSize"
+                class="form-input"
+                placeholder="e.g., Small, 40mm, Medium bifold, Large"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="identifyingMarks" class="input-label">Identifying Marks / Vague Description</label>
+            <textarea
+              id="identifyingMarks"
+              class="form-input form-textarea"
+              rows="3"
+              placeholder="e.g., Scratched glass rim, sticker with cartoon astronaut, initials 'RH' carved on clasp..."
+            ></textarea>
+          </div>
+
+          <!-- Secret Verification Question (Found items only) -->
+          <div id="secretQuestionContainer" class="form-group found-only-field" style="display: none;">
+            <div class="secret-box">
+              <div class="secret-header">
+                <span class="secret-icon">🔒</span>
+                <div>
+                  <h4 class="secret-title">Secret Verification Challenge</h4>
+                  <p class="secret-desc">
+                    Mandatory for found items: specify a question only the true owner can answer to prevent false claims.
+                  </p>
+                </div>
+              </div>
+              <label for="secretQuestion" class="input-label">
+                Secret Question <span class="required-star">*</span>
+              </label>
+              <input
+                type="text"
+                id="secretQuestion"
+                class="form-input"
+                placeholder="e.g., What color is the inner strap lining and what date is displayed?"
+                oninput="clearInputError(this, 'errorSecretQuestion')"
+              />
+              <div class="field-error" id="errorSecretQuestion">Secret verification question is required for found items.</div>
+            </div>
+          </div>
+
+          <!-- Urgency Checkbox -->
+          <div class="form-group checkbox-group">
+            <label class="checkbox-container">
+              <input type="checkbox" id="isHighPriority" />
+              <span class="checkmark"></span>
+              <span class="checkbox-text">
+                <strong>Mark as High Priority</strong>
+                <small>Flags urgent items (keys, official IDs, medical gear) for immediate notification broadcast</small>
+              </span>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitReportBtn">
+              <span class="btn-icon">🚀</span>
+              <span>Submit Report</span>
+            </button>
+            <button type="reset" class="btn btn-secondary" onclick="resetFormState()">
+              <span>Clear Form</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 2: LIVE MATCH FEED                                   -->
+    <!-- ======================================================== -->
+    <section id="feedTab" class="tab-content">
+      <div class="panel-header">
+        <div class="panel-tag">TELEMETRY STREAM</div>
+        <h1 class="panel-title">Live Match Feed</h1>
+        <p class="panel-subtitle">
+          Real-time stream of cataloged items with heuristic cross-reference similarity scoring.
+        </p>
+      </div>
+
+      <!-- Feed Filter & Search Bar -->
+      <div class="filter-bar card">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="feedSearchInput"
+            class="search-input"
+            placeholder="Search items by name or location (e.g. Casio, Library)..."
+            oninput="filterFeedItems()"
+          />
+          <button
+            type="button"
+            id="clearSearchBtn"
+            class="clear-search-btn"
+            onclick="clearSearchInput()"
+            title="Clear search"
+            style="display: none;"
+          >✕</button>
+        </div>
+
+        <div class="filter-controls">
+          <div class="filter-group">
+            <label for="filterType">Filter by Type:</label>
+            <select id="filterType" onchange="filterFeedItems()">
+              <option value="All">All Incidents</option>
+              <option value="Lost">Lost Only</option>
+              <option value="Found">Found Only</option>
+            </select>
+          </div>
+          <div class="filter-info">
+            <span>Showing: <strong id="filterCountDisplay">3 Items</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Match Alert Banner -->
+      <div id="noMatchAlert" class="card no-match-card" style="display: none;">
+        <div class="no-match-icon">🛸</div>
+        <div class="no-match-text">
+          <h3>No matching items found</h3>
+          <p>No reports match your current search query or filter. Try a different item name or location.</p>
+        </div>
+      </div>
+
+      <!-- Cards Container -->
+      <div id="matchFeedContainer" class="feed-grid">
+        
+        <!-- DUMMY CARD 1: Glowing 85% Match Alert -->
+        <article class="card feed-card match-card" data-type="Lost">
+          <div class="card-header">
+            <div class="type-pill pill-lost">LOST</div>
+            <!-- Glowing Match Alert Badge -->
+            <div class="match-alert-badge" title="Simulated heuristic similarity based on Category + Brand + Timestamp">
+              <span class="glow-dot"></span>
+              <span class="match-text">Match Alert! 85% Match</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="card-category">⌚ Wearables &amp; Watches</div>
+            <h2 class="card-title">Blue Casio Watch with scratched strap</h2>
+            <div class="sim-notice">⚡ Demo cross-match with Found Item #FD-802 at Library</div>
+
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span class="meta-label">Location:</span>
+                <span class="meta-val">Central Library</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span class="meta-label">Date:</span>
+                <span class="meta-val">2026-09-25</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">🏷️</span>
+                <span class="meta-label">Brand:</span>
+                <span class="meta-val">Casio</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📏</span>
+                <span class="meta-label">Size:</span>
+                <span class="meta-val">Standard Dial (42mm)</span>
+              </div>
+            </div>
+
+            <p class="card-description">
+              <strong>Identifying Marks:</strong> Distinct scratch across bottom plastic bezel; navy blue polyurethane strap with faint silver buckle wear.
+            </p>
+
+            <div class="priority-tag high-priority">🔥 High Priority Incident</div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn btn-action" onclick="generateQrCode('Blue Casio Watch with scratched strap', 'LOST-01')">
+              <span class="btn-icon">📱</span>
+              <span>Generate QR Code</span>
+            </button>
+            <button class="btn btn-action btn-outline" onclick="messageFinderAnonymously('LOST-01', 'Casio Watch')">
+              <span class="btn-icon">💬</span>
+              <span>Message Finder Anonymously</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- DUMMY CARD 2: Found Item with Drop-off & Secret Question -->
+        <article class="card feed-card" data-type="Found">
+          <div class="card-header">
+            <div class="type-pill pill-found">FOUND</div>
+            <span class="custody-badge">🏢 Custody: RK Hall Security</span>
+          </div>
+
+          <div class="card-body">
+            <div class="card-category">💳 Wallets, Purses &amp; IDs</div>
+            <h2 class="card-title">Black Leather Bifold Wallet</h2>
+
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span class="meta-label">Location:</span>
+                <span class="meta-val">RK Hall Cafeteria</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span class="meta-label">Date:</span>
+                <span class="meta-val">2026-09-26</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">🏷️</span>
+                <span class="meta-label">Brand:</span>
+                <span class="meta-val">Fossil</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📏</span>
+                <span class="meta-label">Size:</span>
+                <span class="meta-val">Medium</span>
+              </div>
+            </div>
+
+            <p class="card-description">
+              <strong>Identifying Marks:</strong> Embossed leather edges, contains campus card and transport pass.
+            </p>
+
+            <div class="secret-challenge-preview">
+              <span class="secret-icon">🔒</span>
+              <span><strong>Verification Challenge:</strong> "What initials are engraved inside the coin pocket?"</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn btn-action" onclick="generateQrCode('Black Leather Bifold Wallet', 'FND-02')">
+              <span class="btn-icon">📱</span>
+              <span>Generate QR Code</span>
+            </button>
+            <button class="btn btn-action btn-outline" onclick="messageFinderAnonymously('FND-02', 'Leather Wallet')">
+              <span class="btn-icon">💬</span>
+              <span>Message Finder Anonymously</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- DUMMY CARD 3: Lost Item with Unknown Location -->
+        <article class="card feed-card" data-type="Lost">
+          <div class="card-header">
+            <div class="type-pill pill-lost">LOST</div>
+            <span class="unknown-pill">❓ Location Unknown</span>
+          </div>
+
+          <div class="card-body">
+            <div class="card-category">🔑 Keys &amp; Keychains</div>
+            <h2 class="card-title">Key Ring with Space Shuttle Pendant</h2>
+
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="meta-icon">📍</span>
+                <span class="meta-label">Location:</span>
+                <span class="meta-val">Unknown / Misplaced</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span class="meta-label">Date:</span>
+                <span class="meta-val">2026-09-24</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">🏷️</span>
+                <span class="meta-label">Brand:</span>
+                <span class="meta-val">NASA Souvenir</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📏</span>
+                <span class="meta-label">Size:</span>
+                <span class="meta-val">3 brass keys + fob</span>
+              </div>
+            </div>
+
+            <p class="card-description">
+              <strong>Identifying Marks:</strong> Miniature metal Apollo rocket keychain; 1 small padlock brass key.
+            </p>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn btn-action" onclick="generateQrCode('Key Ring with Space Shuttle Pendant', 'LST-03')">
+              <span class="btn-icon">📱</span>
+              <span>Generate QR Code</span>
+            </button>
+            <button class="btn btn-action btn-outline" onclick="messageFinderAnonymously('LST-03', 'Space Shuttle Keys')">
+              <span class="btn-icon">💬</span>
+              <span>Message Finder Anonymously</span>
+            </button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 3: ADMIN DASHBOARD                                   -->
+    <!-- ======================================================== -->
+    <section id="adminTab" class="tab-content">
+      <div class="panel-header">
+        <div class="panel-tag">COMMAND TELEMETRY</div>
+        <h1 class="panel-title">Campus Admin Dashboard</h1>
+        <p class="panel-subtitle">
+          Real-time incident metrics, custody verification rates, and recovery statistics.
+        </p>
+      </div>
+
+      <!-- Metric Counters Grid -->
+      <div class="metrics-grid">
+        <!-- Metric 1: Total Lost -->
+        <div class="card metric-card">
+          <div class="metric-top">
+            <span class="metric-icon icon-lost">📡</span>
+            <span class="metric-chip chip-lost">Reports</span>
+          </div>
+          <div class="metric-value text-red" id="metricTotalLost">2</div>
+          <div class="metric-label">Total Lost Items</div>
+          <div class="metric-footer">Active search broadcasts</div>
+        </div>
+
+        <!-- Metric 2: Total Found -->
+        <div class="card metric-card">
+          <div class="metric-top">
+            <span class="metric-icon icon-found">🛸</span>
+            <span class="metric-chip chip-found">Secured</span>
+          </div>
+          <div class="metric-value text-blue" id="metricTotalFound">1</div>
+          <div class="metric-label">Total Found Items</div>
+          <div class="metric-footer">Registered in safe custody</div>
+        </div>
+
+        <!-- Metric 3: Pending Claims -->
+        <div class="card metric-card">
+          <div class="metric-top">
+            <span class="metric-icon icon-pending">⏳</span>
+            <span class="metric-chip chip-pending">Verification</span>
+          </div>
+          <div class="metric-value text-amber" id="metricPendingClaims">2</div>
+          <div class="metric-label">Pending Claims</div>
+          <div class="metric-footer">Awaiting owner challenge</div>
+        </div>
+
+        <!-- Metric 4: Successful Returns -->
+        <div class="card metric-card">
+          <div class="metric-top">
+            <span class="metric-icon icon-success">🏆</span>
+            <span class="metric-chip chip-success">Completed</span>
+          </div>
+          <div class="metric-value text-neon" id="metricSuccessfulReturns">14</div>
+          <div class="metric-label">Successful Returns</div>
+          <div class="metric-footer">Reunited with owners</div>
+        </div>
+      </div>
+
+      <!-- Admin System Status Banner -->
+      <div class="card admin-status-card">
+        <div class="status-left">
+          <div class="pulse-indicator"></div>
+          <div>
+            <h3>Autonomous Cross-Matching Subsystem Active</h3>
+            <p>Scanning category intersections, temporal proximity, and brand tokens every 60 seconds.</p>
+          </div>
+        </div>
+        <div class="status-right">
+          <button class="btn btn-secondary" onclick="simulateAdminAction('Run Database Match Optimization')">
+            <span>⚡ Run Match Cycle</span>
+          </button>
+          <button class="btn btn-primary" onclick="simulateAdminAction('Export Incident Audit Log (CSV)')">
+            <span>📥 Export Log</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Resolution Log Table -->
+      <div class="card table-card">
+        <div class="table-header-row">
+          <h3>Recent Incident Audit Trail</h3>
+          <span class="badge-pill">Live Synced</span>
+        </div>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Telemetry ID</th>
+                <th>Item Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody">
+              <tr>
+                <td><code>#ITM-9041</code></td>
+                <td>Blue Casio Watch with scratched strap</td>
+                <td><span class="badge badge-lost">LOST</span></td>
+                <td>Central Library</td>
+                <td><span class="badge badge-match">MATCH CANDIDATE</span></td>
+                <td>
+                  <button class="btn-table-action" onclick="simulateClaimResolution('Blue Casio Watch', this)">
+                    Verify Return
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td><code>#ITM-9042</code></td>
+                <td>Black Leather Bifold Wallet</td>
+                <td><span class="badge badge-found">FOUND</span></td>
+                <td>RK Hall Security</td>
+                <td><span class="badge badge-pending">PENDING CLAIM</span></td>
+                <td>
+                  <button class="btn-table-action" onclick="simulateClaimResolution('Leather Wallet', this)">
+                    Verify Return
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td><code>#ITM-9038</code></td>
+                <td>Sony WH-1000XM4 Headphones</td>
+                <td><span class="badge badge-returned">RETURNED</span></td>
+                <td>Sports Complex</td>
+                <td><span class="badge badge-success">RESOLVED</span></td>
+                <td>
+                  <span class="text-muted">Completed</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================== -->
+  <!-- FOOTER                                                     -->
+  <!-- ========================================================== -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <span>🚀 <strong>AuraFind</strong> — Smart Campus Lost &amp; Found Protocol</span>
+      </div>
+      <div class="footer-right">
+        <span>Built for 1st-Year Engineering Hackathon • Space Theme Prototype</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- External JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
