@@ -297,7 +297,7 @@ function validateReportForm() {
  * - Shows interactive toast notification
  * - Switches tab to Live Match Feed
  */
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
   // Prevent page reload on submit
   event.preventDefault();
 
@@ -321,9 +321,33 @@ function handleFormSubmit(event) {
   const isHighPriority = document.getElementById('isHighPriority').checked;
   const dropOffStatus = isFound ? document.getElementById('dropOffStatus').value : 'N/A';
   const secretQuestion = isFound ? document.getElementById('secretQuestion').value.trim() : '';
+  console.log('🚀 Starting backend request...');
+const response = await fetch('http://127.0.0.1:5000/api/reports', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    status: itemType.toLowerCase(),
+    category: category,
+    item: itemName,
+    brand: brand,
+    size: size,
+    marks: marks,
+    location: location,
+    date: date,
+    high_priority: isHighPriority ? 1 : 0,
+    drop_off_status: dropOffStatus,
+    secret_question: secretQuestion
+  })
+});
 
-  // Generate unique tracking code for this report
-  const incidentCode = `#ITM-${nextIncidentId++}`;
+const result = await response.json();
+console.log('Backend response:', result);
+
+  // Use the real database ID and extract the match score
+const incidentCode = `#ITM-${result.report_id || nextIncidentId++}`;
+const dynamicMatchScore = result.match_score || 0;
 
   // Build the new HTML Card element
   const cardElement = createFeedCardElement({
@@ -338,7 +362,8 @@ function handleFormSubmit(event) {
     marks: marks,
     isHighPriority: isHighPriority,
     dropOffStatus: dropOffStatus,
-    secretQuestion: secretQuestion
+    secretQuestion: secretQuestion,
+    matchScore: dynamicMatchScore
   });
 
   // Prepend new card to the top of Live Match Feed
@@ -386,9 +411,11 @@ function createFeedCardElement(data) {
   card.className = 'card feed-card';
   card.setAttribute('data-type', data.type);
 
-  // Check if item qualifies for simulated match highlight
-  const isMatchDemo = data.category.includes('Electronics') || data.category.includes('Wearables');
-  if (isMatchDemo) {
+  // Dynamic match check (triggers alert if score is 50% or higher)
+  const matchScore = data.matchScore || 0;
+  const isMatch = matchScore >= 50;
+
+  if (isMatch) {
     card.classList.add('match-card');
   }
 
@@ -397,16 +424,16 @@ function createFeedCardElement(data) {
   
   // Custom right header badge
   let headerRightBadge = '';
-  if (isMatchDemo) {
+  if (isMatch) {
     headerRightBadge = `
-      <div class="match-alert-badge" title="Simulated heuristic similarity based on Category + Brand">
+      <div class="match-alert-badge" title="Dynamic match based on Category, Brand & Location">
         <span class="glow-dot"></span>
-        <span class="match-text">Match Alert! 85% Match</span>
+        <span class="match-text">Match Alert! ${matchScore}% Match</span>
       </div>
     `;
   } else if (data.type === 'Found') {
     headerRightBadge = `<span class="custody-badge">🏢 Custody: ${escapeHtml(data.dropOffStatus)}</span>`;
-  } else if (data.location.includes('Unknown')) {
+  } else if (data.location && data.location.includes('Unknown')) {
     headerRightBadge = `<span class="unknown-pill">❓ Location Unknown</span>`;
   }
 
@@ -424,8 +451,8 @@ function createFeedCardElement(data) {
   ` : '';
 
   // Simulated match notice
-  const matchNoticeHtml = isMatchDemo ? `
-    <div class="sim-notice">⚡ Simulated Demo Match Score: 85% algorithmic confidence</div>
+  const matchNoticeHtml = isMatch ? `
+    <div class="sim-notice">⚡ Real-time Match Score: ${matchScore}% algorithmic confidence</div>
   ` : '';
 
   // Fill card content
@@ -784,3 +811,31 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAdminMetricsDisplay();
   updateFeedCountBadge();
 });
+// 5. Fetch real data from Backend and clear dummy HTML cards
+  fetch('http://127.0.0.1:5000/api/reports')
+    .then(res => res.json())
+    .then(data => {
+      const feedContainer = document.getElementById('matchFeedContainer');
+      feedContainer.innerHTML = ''; // Clears dummy cards
+      
+      data.reports.forEach(report => {
+        const card = createFeedCardElement({
+          id: `#ITM-${report.id}`,
+          type: report.status === 'lost' ? 'Lost' : 'Found',
+          category: report.category,
+          name: report.item,
+          date: report.date,
+          location: report.location,
+          brand: report.brand,
+          size: report.size,
+          marks: report.marks,
+          isHighPriority: report.high_priority,
+          dropOffStatus: report.drop_off_status,
+          secretQuestion: report.secret_question,
+          matchScore: 0 // Historic items don't trigger flashing alerts
+        });
+        feedContainer.appendChild(card);
+      });
+      updateFeedCountBadge();
+    })
+    .catch(err => console.error("Database connection failed:", err));
