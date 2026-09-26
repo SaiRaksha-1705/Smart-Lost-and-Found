@@ -9,19 +9,25 @@ notice boards, and word of mouth.
 We are building a centralised campus platform where students can report lost or found items and intelligently discover potential matches.
 
 ## Key Features
-- Report a lost item
-- Report a found item
-- Search and filter reported items
-- Smart matching between lost and found reports
-- Match confidence
-- Security question
-- Claim verification
+Lost or Found Toggle<br>
+Date Picker<br>
+Smart Location Logic<br>
+Guided UI Placeholders<br>
+Smart/Vague Description Handling<br>
+Claim Verification (Secret Question)<br>
+Urgency/Priority Flag<br>
+Status Tracking<br>
+Duplicate Detection<br>
+Admin Dashboard<br>
+Location-Based Search<br>
+Anonymous Contact & Notifications<br>
 
 ## Tech Stack
-Frontend: TBD <br>
-Backend: TBD <br>
-Database: TBD <br>
-AI/ML: TBD <br>
+* Frontend: HTML, CSS, JavaScript <br> 
+* Backend: Python, Flask <br> 
+* Database: SQLite <br> 
+* Matching: Rule-based similarity scoring algorithm <br> 
+* Hosting: Render <br> 
 
 ## Team
 Vrudhi Rai <br>
