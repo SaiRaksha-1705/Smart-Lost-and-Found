@@ -50,7 +50,10 @@ def init_db():
     conn.commit()
     conn.close()
 
-
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+    
 @app.route("/api/reports", methods=["GET", "POST"])
 def handle_reports():
     conn = sqlite3.connect(DATABASE)
