@@ -1,9 +1,9 @@
-from flask import Flask, request
+from flask import Flask, request, send_from_directory, jsonify
 from flask_cors import CORS
 import sqlite3
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
 DATABASE = "lost_found.db"
 
@@ -51,6 +51,11 @@ def init_db():
     conn.close()
 
 
+@app.route("/api/reports", methods=["GET", "POST"])
+def handle_reports():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    
 @app.route("/api/test")
 def test():
     return {"message": "Backend is working!"}
@@ -60,6 +65,7 @@ def test():
 def handle_reports():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
+
 
     if request.method == "GET":
         cursor = conn.execute("SELECT * FROM reports ORDER BY id DESC")
