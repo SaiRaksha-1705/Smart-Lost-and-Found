@@ -55,16 +55,12 @@ def init_db():
 def handle_reports():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
-    
+
 @app.route("/api/test")
 def test():
     return {"message": "Backend is working!"}
 
 
-@app.route("/api/reports", methods=["GET", "POST"])
-def handle_reports():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
 
 
     if request.method == "GET":
