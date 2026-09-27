@@ -17,6 +17,8 @@
 // ==============================================================================
 
 // Campus locations list used for populating dropdown options dynamically
+// Deployed backend URL
+const API_BASE_URL = 'https://smart-lost-and-found-aurafind-yd7o.onrender.com';
 const CAMPUS_LOCATIONS = [
   "Central Library - 1st Floor",
   "Central Library - 2nd Floor Reading Room",
@@ -322,7 +324,8 @@ async function handleFormSubmit(event) {
   const dropOffStatus = isFound ? document.getElementById('dropOffStatus').value : 'N/A';
   const secretQuestion = isFound ? document.getElementById('secretQuestion').value.trim() : '';
   console.log('🚀 Starting backend request...');
-const response = await fetch('http://127.0.0.1:5000/api/reports', {
+
+const response = await fetch(`${API_BASE_URL}/api/reports`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
@@ -812,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateFeedCountBadge();
 });
 // 5. Fetch real data from Backend and clear dummy HTML cards
-  fetch('/api/reports')
+  fetch(`${API_BASE_URL}/api/reports`)
     .then(res => res.json())
     .then(data => {
       const feedContainer = document.getElementById('matchFeedContainer');
