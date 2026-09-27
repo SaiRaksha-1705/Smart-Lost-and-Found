@@ -53,18 +53,11 @@ def init_db():
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
-    
+
 @app.route("/api/reports", methods=["GET", "POST"])
 def handle_reports():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
-
-@app.route("/api/test")
-def test():
-    return {"message": "Backend is working!"}
-
-
-
 
     if request.method == "GET":
         cursor = conn.execute("SELECT * FROM reports ORDER BY id DESC")
@@ -124,10 +117,36 @@ def test():
             "match_score": best_match_score,
             "report": data
         }
+@app.route("/api/test")
+def test():
 
+    return {"message": "Backend is working!"}
+
+def init_db():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            status TEXT,
+            category TEXT,
+            item TEXT,
+            brand TEXT,
+            size TEXT,
+            marks TEXT,
+            location TEXT,
+            date TEXT,
+            high_priority INTEGER,
+            drop_off_status TEXT,
+            secret_question TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+    
+init_db()
 
 if __name__ == "__main__":
-    init_db()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
     
