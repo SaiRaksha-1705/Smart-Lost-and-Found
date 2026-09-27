@@ -812,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateFeedCountBadge();
 });
 // 5. Fetch real data from Backend and clear dummy HTML cards
-  fetch('http://127.0.0.1:5000/api/reports')
+  fetch('/api/reports')
     .then(res => res.json())
     .then(data => {
       const feedContainer = document.getElementById('matchFeedContainer');
